@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>噪音數據模擬助手 V2.4 NL-52 舊數據學習版</title>
+<title>噪音數據模擬助手 V2.5 NL-52 自然波形優化版</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.4 · NL-53 功能鎖定／NL-52 舊數據學習＋原格式輸出 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.5 · NL-53 功能鎖定／NL-52 舊數據自然波形優化 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -215,6 +215,42 @@ async function generate(){
    values[i]=v;sumE+=10**(v/10);if(v>max)max=v;if(v<min)min=v;
    if((i&32767)===0){$('bar').style.width=`${2+78*i/n}%`;await new Promise(r=>setTimeout(r,0));}
  }
+  // V2.5：只優化 NL-52「舊數據學習」；NL-53 完全不進入這段。
+  if($('model').value==='NL-52' && mode==='learn'){
+    let days={}, drift=0, driftTarget=0, nextDrift=0;
+    for(let i=0;i<n;i++){
+      let d=new Date(startMs+i*1000), key=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+      if(!days[key]) days[key]={
+        bias:(Math.random()*2-1)*1.15,
+        night:(Math.random()*2-1)*.8,
+        dawn:(Math.random()*2-1)*1.0,
+        day:(Math.random()*2-1)*.75,
+        eve:(Math.random()*2-1)*1.0
+      };
+      if(i>=nextDrift){driftTarget=(Math.random()*2-1)*.65;nextDrift=i+120+((Math.random()*360)|0)}
+      drift+=(driftTarget-drift)*.0022;
+      let h=d.getHours()+d.getMinutes()/60, sh=days[key], a,b,t;
+      if(h<6){a=sh.night;b=sh.dawn;t=h/6}
+      else if(h<10){a=sh.dawn;b=sh.day;t=(h-6)/4}
+      else if(h<17){a=sh.day;b=sh.eve;t=(h-10)/7}
+      else if(h<22){a=sh.eve;b=sh.night;t=(h-17)/5}
+      else{a=sh.night;b=sh.night;t=0}
+      t=(1-Math.cos(Math.PI*t))/2;
+      let adj=sh.bias+a*(1-t)+b*t+drift;
+      values[i]=Math.round(Math.max(30,Math.min(98,values[i]+adj))*10)/10;
+    }
+    // 少量平滑事件：讓不同天的車輛/生活事件位置不固定，但舊資料紋理仍是主體。
+    let eventN=Math.round((n/3600)*(.28+Math.random()*.30));
+    for(let e2=0;e2<eventN;e2++){
+      let c=(Math.random()*n)|0, hh2=new Date(startMs+c*1000).getHours();
+      if(hh2<6 && Math.random()<.82){e2--;continue}
+      let half=4+((Math.random()*12)|0), amp=3+Math.random()*7.5;
+      for(let k=-half;k<=half;k++){let q=c+k;if(q<0||q>=n)continue;let x=Math.abs(k)/(half+1);values[q]=Math.round(Math.min(98,values[q]+amp*Math.pow(Math.cos(x*Math.PI/2),2))*10)/10}
+    }
+    // 重新計算整體統計
+    sumE=0;max=-Infinity;min=Infinity;
+    for(let i=0;i<n;i++){let v=values[i];sumE+=10**(v/10);if(v>max)max=v;if(v<min)min=v}
+  }
   overall={leq:10*Math.log10(sumE/n),max,min};$('bar').style.width='84%';await new Promise(r=>setTimeout(r,0));renderFast();$('bar').style.width='100%';setTimeout(()=>$('prog').classList.add('hidden'),350)
 }
 function sliceStats(from,to){let a=Array.from(values.subarray(from,to));return stats(a)}
