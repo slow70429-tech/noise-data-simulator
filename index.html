@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>噪音數據模擬助手 V1.1</title>
+<title>噪音數據模擬助手 V1.2</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V1.1 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V1.2 · 高速版 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -19,10 +19,11 @@
 <div class="warn">產出的檔案會標示為模擬／測試資料，適合流程測試、軟體驗證與演練，不應冒充實際儀器量測紀錄。</div>
 <div class="row"><button class="btn primary" onclick="generate()">▶ 產生模擬資料</button><button class="btn secondary" onclick="clearAll()">清除</button></div><div class="progress hidden" id="prog"><i id="bar"></i></div>
 </section>
-<section class="card hidden" id="result"><h3 style="margin:0">結果預覽</h3><div class="stats"><div class="stat"><span>每秒筆數</span><b id="sCount">-</b></div><div class="stat"><span>總時數</span><b id="sHours">-</b></div><div class="stat"><span>整體 Leq</span><b id="sLeq">-</b></div><div class="stat"><span>最大值</span><b id="sMax">-</b></div></div><div class="tablewrap"><table><thead><tr><th>時間</th><th>Leq</th><th>Lmax</th><th>L5</th><th>L10</th><th>L50</th><th>L90</th><th>L95</th><th>Lmin</th></tr></thead><tbody id="hourRows"></tbody></table></div><div class="row"><button class="btn primary" onclick="downloadCSV()">下載每秒 CSV</button><button class="btn secondary" onclick="downloadInstrument()">下載儀器格式（測試）</button></div><div class="info" id="exportInfo"></div></section>
+<section class="card hidden" id="result"><h3 style="margin:0">結果預覽</h3><div class="stats"><div class="stat"><span>每秒筆數</span><b id="sCount">-</b></div><div class="stat"><span>總時數</span><b id="sHours">-</b></div><div class="stat"><span>整體 Leq</span><b id="sLeq">-</b></div><div class="stat"><span>最大值</span><b id="sMax">-</b></div></div><div class="tablewrap"><table><thead><tr><th>時間</th><th>Leq</th><th>Lmax</th><th>L5</th><th>L10</th><th>L50</th><th>L90</th><th>L95</th><th>Lmin</th></tr></thead><tbody id="hourRows"></tbody></table></div><div class="row"><button class="btn primary" onclick="downloadCSV()">下載每秒 CSV</button><button class="btn secondary" onclick="downloadInstrument()">下載完整資料包 ZIP</button></div><div class="info" id="exportInfo"></div></section>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
-let mode='new', data=[], learned=null;
+let mode='new', values=null, startMs=0, endMs=0, learned=null, overall=null;
 const $=id=>document.getElementById(id);function pad(n,w=2){return String(n).padStart(w,'0')}function dt(d){return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
 function setDefaults(){let n=new Date();n.setMinutes(0,0,0);$('start').value=new Date(n.getTime()-n.getTimezoneOffset()*60000).toISOString().slice(0,19);let e=new Date(n.getTime()+24*3600000);$('end').value=new Date(e.getTime()-e.getTimezoneOffset()*60000).toISOString().slice(0,19)}setDefaults();
 function setMode(m){mode=m;$('mNew').classList.toggle('active',m==='new');$('mLearn').classList.toggle('active',m==='learn');$('newPanel').classList.toggle('hidden',m!=='new');$('learnPanel').classList.toggle('hidden',m!=='learn')}
@@ -33,40 +34,57 @@ function dayAdj(h,scene){let a=0;if(h<5)a=-7;else if(h<7)a=-2;else if(h<9)a=5;el
 function percentile(arr,p){let a=[...arr].sort((x,y)=>x-y);return a[Math.min(a.length-1,Math.floor((1-p)*a.length))]}
 function stats(a){let leq=10*Math.log10(a.reduce((s,x)=>s+10**(x/10),0)/a.length);return{leq,max:Math.max(...a),l5:percentile(a,.05),l10:percentile(a,.10),l50:percentile(a,.50),l90:percentile(a,.90),l95:percentile(a,.95),min:Math.min(...a)}}
 async function generate(){
- let s=new Date($('start').value),e=new Date($('end').value);if(!(e>s))return alert('結束時間要晚於開始時間');
- let n=Math.floor((e-s)/1000)+1;if(n>700000)return alert('V1.1 瀏覽器版先限制約 8 天資料，避免手機記憶體不足。');if(mode==='learn'&&!learned)return alert('請先讀取舊 RND 資料');
- $('prog').classList.remove('hidden');$('bar').style.width='2%';$('result').classList.add('hidden');await new Promise(r=>setTimeout(r,20));
- data=new Array(n);let scene=$('scene').value,str=Number($('strength').value),evRate=Number($('events').value||1),sim=Number($('similarity').value||.7);
- let bg=mode==='learn'?learned.mean:(base[scene]+str), event=null, micro=0;
+ const s=new Date($('start').value),e=new Date($('end').value);if(!(e>s))return alert('結束時間要晚於開始時間');
+ const n=Math.floor((e-s)/1000)+1;if(n>700000)return alert('瀏覽器版先限制約 8 天資料，避免手機記憶體不足。');if(mode==='learn'&&!learned)return alert('請先讀取舊 RND 資料');
+ $('prog').classList.remove('hidden');$('bar').style.width='2%';$('result').classList.add('hidden');await new Promise(r=>setTimeout(r,10));
+ startMs=s.getTime();endMs=e.getTime();values=new Float32Array(n);
+ const scene=$('scene').value,str=Number($('strength').value),evRate=Number($('events').value||1),sim=Number($('similarity').value||.7),off=Number($('offset').value||0);
+ let bg=mode==='learn'?learned.mean:(base[scene]+str),event=null,micro=0,sumE=0,max=-Infinity,min=Infinity;
+ let cachedHour=-1,target=bg;
  for(let i=0;i<n;i++){
-   let t=new Date(s.getTime()+i*1000),v;
+   const ms=startMs+i*1000;let v;
+   const hourKey=Math.floor(ms/3600000);
+   if(hourKey!==cachedHour){cachedHour=hourKey;const h=new Date(ms).getHours();target=mode==='learn'?learned.mean+off+dayAdj(h,'road')*.10*(1-sim):base[scene]+str+dayAdj(h,scene)}
    if(mode==='learn'){
-     let d=learned.dif[Math.floor(Math.random()*learned.dif.length)]||0;
-     d=Math.max(-3.5,Math.min(3.5,d));
-     let target=learned.mean+Number($('offset').value)+dayAdj(t.getHours(),'road')*.10*(1-sim);
-     bg+=(target-bg)*.004+d*sim*.20+randn()*.10;
-     v=bg;
-     if(Math.random()<0.0015*(1-sim)){v+=Math.max(-4,Math.min(8,randn()*learned.sd*.35));}
+     let d=learned.dif[(Math.random()*learned.dif.length)|0]||0;d=Math.max(-3.5,Math.min(3.5,d));
+     bg+=(target-bg)*.004+d*sim*.20+randn()*.10;v=bg;if(Math.random()<0.0015*(1-sim))v+=Math.max(-4,Math.min(8,randn()*learned.sd*.35));
    }else{
-     let target=base[scene]+str+dayAdj(t.getHours(),scene);
-     micro=.88*micro+randn()*.32;
-     bg+=(target-bg)*.008+randn()*.10;
-     v=bg+micro;
-     if(!event){
-       let p=(scene==='arterial'?0.0028:scene==='road'||scene==='mixed'?0.0022:scene==='commercial'?0.0018:scene==='industrial'||scene==='construction'?0.0015:0.0008)*evRate;
-       if(Math.random()<p){let dur=scene==='arterial'||scene==='road'||scene==='mixed'?8+Math.floor(Math.random()*22):5+Math.floor(Math.random()*18);let amp=(scene==='arterial'?8:scene==='road'||scene==='mixed'?7:5)+Math.random()*(scene==='arterial'?7:6);event={age:0,dur,amp};}
-     }
-     if(event){let x=(event.age+1)/(event.dur+1),shape=Math.sin(Math.PI*x);v+=event.amp*Math.pow(shape,.75);event.age++;if(event.age>=event.dur)event=null;}
+     micro=.88*micro+randn()*.32;bg+=(target-bg)*.008+randn()*.10;v=bg+micro;
+     if(!event){let p=(scene==='arterial'?0.0028:scene==='road'||scene==='mixed'?0.0022:scene==='commercial'?0.0018:scene==='industrial'||scene==='construction'?0.0015:0.0008)*evRate;if(Math.random()<p){let dur=scene==='arterial'||scene==='road'||scene==='mixed'?8+((Math.random()*22)|0):5+((Math.random()*18)|0);let amp=(scene==='arterial'?8:scene==='road'||scene==='mixed'?7:5)+Math.random()*(scene==='arterial'?7:6);event={age:0,dur,amp}}}
+     if(event){let x=(event.age+1)/(event.dur+1);v+=event.amp*Math.pow(Math.sin(Math.PI*x),.75);if(++event.age>=event.dur)event=null}
      if(Math.random()<0.000035*evRate)v+=5+Math.random()*8;
    }
-   v=Math.max(30,Math.min(100,v));data[i]={t,v:+v.toFixed(1)};
-   if(i%12000===0){$('bar').style.width=`${2+82*i/n}%`;await new Promise(r=>setTimeout(r,0));}
+   v=Math.max(30,Math.min(100,v));v=Math.round(v*10)/10;values[i]=v;sumE+=10**(v/10);if(v>max)max=v;if(v<min)min=v;
+   if(i%50000===0){$('bar').style.width=`${2+78*i/n}%`;await new Promise(r=>setTimeout(r,0));}
  }
- $('bar').style.width='88%';await new Promise(r=>setTimeout(r,0));render();$('bar').style.width='100%';setTimeout(()=>$('prog').classList.add('hidden'),450)
+ overall={leq:10*Math.log10(sumE/n),max,min};$('bar').style.width='84%';await new Promise(r=>setTimeout(r,0));renderFast();$('bar').style.width='100%';setTimeout(()=>$('prog').classList.add('hidden'),350)
 }
-function render(){$('result').classList.remove('hidden');$('sCount').textContent=data.length.toLocaleString();$('sHours').textContent=(data.length/3600).toFixed(1);let all=stats(data.map(x=>x.v));$('sLeq').textContent=all.leq.toFixed(1)+' dB';$('sMax').textContent=all.max.toFixed(1)+' dB';let groups=new Map();for(const x of data){let d=x.t,k=`${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:00`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x.v)}$('hourRows').innerHTML=[...groups].map(([k,a])=>{let z=stats(a),f=x=>x.toFixed(1);return `<tr><td>${k}</td><td>${f(z.leq)}</td><td>${f(z.max)}</td><td>${f(z.l5)}</td><td>${f(z.l10)}</td><td>${f(z.l50)}</td><td>${f(z.l90)}</td><td>${f(z.l95)}</td><td>${f(z.min)}</td></tr>`}).join('');$('exportInfo').textContent=`目前選擇 ${$('model').value}。NL-53 會依每小時 3,600 筆切檔，對應你實際看到的 Auto_Lp_01 多檔結構；測試輸出仍保留 SIMULATED_TEST 標示。`}
-function blobDownload(text,name){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function downloadCSV(){if(!data.length)return;blobDownload('SIMULATED_TEST_DATA\nTime,Lp_dB\n'+data.map(x=>`${dt(x.t)},${x.v.toFixed(1)}`).join('\n'),'noise_simulated_per_second.csv')}
-function downloadInstrument(){if(!data.length)return;let m=$('model').value;if(m==='NL-32'){let chunk=60000;for(let c=0;c<data.length;c+=chunk){let txt='SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT\r\n'+data.slice(c,c+chunk).map(x=>` ${x.v.toFixed(1)}, , , ,`).join('\r\n');blobDownload(txt,`SIM_AU1_${pad(c/chunk,4)}.RND`)}}else if(m==='NL-52'){let chunk=36000;for(let c=0;c<data.length;c+=chunk){let txt='SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT\r\nAddress,Start Time,Lp,Over,Under,Output Over,Marker 1,Marker 2,\r\n'+data.slice(c,c+chunk).map((x,j)=>`${String(c+j+1).padStart(9)},${dt(x.t)}.0, ${x.v.toFixed(1)},----,-----,--------,-,-,`).join('\r\n');blobDownload(txt,`SIM_NL52_${pad(c/chunk+1,4)}.rnd`)}}else{let chunk=3600;for(let c=0;c<data.length;c+=chunk){let slice=data.slice(c,c+chunk),runMax=-Infinity,runMin=Infinity,sumE=0;let lines=slice.map((x,j)=>{runMax=Math.max(runMax,x.v);runMin=Math.min(runMin,x.v);sumE+=10**(x.v/10);let leq=10*Math.log10(sumE/(j+1)),peak=x.v+3+Math.random()*.4;return `${String(c+j+1).padStart(11)},${dt(x.t)}.600, ${x.v.toFixed(1)}, ${leq.toFixed(1)}, ${runMax.toFixed(1)}, ${runMin.toFixed(1)}, ${peak.toFixed(1)},  -.-,-,-,-,-,-,-,`});let txt='SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT\r\nAddress,Start Time,Lp(Main),Leq(Main),Lmax(Main),Lmin(Main),Lpeak(Main),LIeq(Main),Over(Main),Under(Main),Marker1,Marker2,Marker3,Marker4,\r\n'+lines.join('\r\n');blobDownload(txt,`SIM_NL53_${pad(c/chunk+1,4)}.rnd`)}}}
-function clearAll(){data=[];learned=null;$('files').value='';$('fileInfo').textContent='尚未讀取參考檔。';$('result').classList.add('hidden');setDefaults()}
+function sliceStats(from,to){let a=Array.from(values.subarray(from,to));return stats(a)}
+function renderFast(){
+ $('result').classList.remove('hidden');$('sCount').textContent=values.length.toLocaleString();$('sHours').textContent=(values.length/3600).toFixed(1);$('sLeq').textContent=overall.leq.toFixed(1)+' dB';$('sMax').textContent=overall.max.toFixed(1)+' dB';
+ let rows=[],i=0;while(i<values.length){let ms=startMs+i*1000,d=new Date(ms),next=new Date(d);next.setMinutes(0,0,0);next.setHours(next.getHours()+1);let count=Math.min(values.length-i,Math.round((next.getTime()-ms)/1000));let z=sliceStats(i,i+count),f=x=>x.toFixed(1),k=`${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:00`;rows.push(`<tr><td>${k}</td><td>${f(z.leq)}</td><td>${f(z.max)}</td><td>${f(z.l5)}</td><td>${f(z.l10)}</td><td>${f(z.l50)}</td><td>${f(z.l90)}</td><td>${f(z.l95)}</td><td>${f(z.min)}</td></tr>`);i+=count}
+ $('hourRows').innerHTML=rows.join('');$('exportInfo').textContent=`目前選擇 ${$('model').value}。按「下載完整資料包 ZIP」會一次下載一包，內含 RNH、全部 RND 與模擬摘要，不會把數十個檔案散落在下載資料夾。`;
+}
+function blobDownload(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob instanceof Blob?blob:new Blob([blob],{type:'text/plain;charset=utf-8'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+function downloadCSV(){if(!values||!values.length)return;let out=['SIMULATED_TEST_DATA','Time,Lp_dB'];for(let i=0;i<values.length;i++)out.push(`${dt(new Date(startMs+i*1000))},${values[i].toFixed(1)}`);blobDownload(out.join('\n'),'noise_simulated_per_second.csv')}
+function mmdd(){let d=new Date(startMs);return pad(d.getMonth()+1)+pad(d.getDate())}
+function rnhText(model){return `SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT\r\nModel：${model}\r\nLp取樣間隔：Lp,1s\r\n開始時間：${dt(new Date(startMs))}\r\n結束時間：${dt(new Date(endMs))}\r\nData number：${values.length}\r\n`}
+function summaryText(model){return `【模擬／測試資料】\r\n儀器型號：${model}\r\n開始時間：${dt(new Date(startMs))}\r\n結束時間：${dt(new Date(endMs))}\r\n每秒筆數：${values.length}\r\n總時數：${(values.length/3600).toFixed(1)}\r\n整體 Leq：${overall.leq.toFixed(1)} dB\r\nLmax：${overall.max.toFixed(1)} dB\r\n用途：流程測試、軟體驗證與演練；不得作為實際量測紀錄。\r\n`}
+async function downloadInstrument(){
+ if(!values||!values.length)return; if(typeof JSZip==='undefined')return alert('ZIP 元件尚未載入，請確認網路後重新整理。');
+ const m=$('model').value,tag=mmdd(),zip=new JSZip(),root=zip.folder(`Auto_${tag}`);root.file(`Auto_${tag}.RNH`,rnhText(m));root.file('模擬結果摘要.txt',summaryText(m));
+ if(m==='NL-53'){
+   let folder=root.folder('Auto_Lp_01'),chunk=3600;
+   for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT','Address,Start Time,Lp(Main),Leq(Main),Lmax(Main),Lmin(Main),Lpeak(Main),LIeq(Main),Over(Main),Under(Main),Marker1,Marker2,Marker3,Marker4,'];let runMax=-Infinity,runMin=Infinity,sum=0;for(let i=c;i<to;i++){let v=values[i];runMax=Math.max(runMax,v);runMin=Math.min(runMin,v);sum+=10**(v/10);let leq=10*Math.log10(sum/(i-c+1)),peak=v+3.2;lines.push(`${String(i+1).padStart(11)},${dt(new Date(startMs+i*1000))}.600, ${v.toFixed(1)}, ${leq.toFixed(1)}, ${runMax.toFixed(1)}, ${runMin.toFixed(1)}, ${peak.toFixed(1)},  -.-,-,-,-,-,-,-,`)}folder.file(`NL_0001_SLM_Lp_${tag}_${pad(c/chunk+1,4)}.RND`,lines.join('\r\n'))}
+ }else if(m==='NL-52'){
+   let folder=root.folder('AUTO_LP'),chunk=36000;
+   for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT','Address,Start Time,Lp,Over,Under,Output Over,Marker 1,Marker 2,'];for(let i=c;i<to;i++)lines.push(`${String(i+1).padStart(9)},${dt(new Date(startMs+i*1000))}.0, ${values[i].toFixed(1)},----,-----,--------,-,-,`);folder.file(`NL_001_SLM_Lp_${tag}_${pad(c/chunk+1,4)}.RND`,lines.join('\r\n'))}
+ }else{
+   let folder=root.folder('AUTO_LP'),chunk=60000;
+   for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT'];for(let i=c;i<to;i++)lines.push(` ${values[i].toFixed(1)}, , , ,`);folder.file(`AU1_${pad(c/chunk,4)}.RND`,lines.join('\r\n'))}
+   root.file(`AU1_${tag}.RNH`,rnhText(m));
+ }
+ $('exportInfo').textContent='正在建立 ZIP…';let blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:3}},m=>{$('exportInfo').textContent=`正在建立 ZIP… ${m.percent.toFixed(0)}%`});blobDownload(blob,`${m.replace('-','')}_SIM_${tag}.zip`);$('exportInfo').textContent='完整資料包 ZIP 已建立。';
+}
+function clearAll(){values=null;overall=null;learned=null;$('files').value='';$('fileInfo').textContent='尚未讀取參考檔。';$('result').classList.add('hidden');setDefaults()}
 </script></body></html>
