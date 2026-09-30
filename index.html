@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>噪音數據模擬助手 V2.2 波形學習版</title>
+<title>噪音數據模擬助手 V2.4 NL-52 舊數據學習版</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.3 NL-53 效能學習版 · 分批讀取／即時建模／不卡 74 檔 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.4 · NL-53 功能鎖定／NL-52 舊數據學習＋原格式輸出 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -35,6 +35,12 @@ function updateGenerateState(){let b=$('generateBtn');b.disabled=(mode==='learn'
 function setMode(m){mode=m;$('mNew').classList.toggle('active',m==='new');$('mLearn').classList.toggle('active',m==='learn');$('newPanel').classList.toggle('hidden',m!=='new');$('learnPanel').classList.toggle('hidden',m!=='learn');updateGenerateState()}
 function drawLearnWave(vals){let c=$('waveCanvas'),x=c.getContext('2d'),w=c.width,h=c.height;x.clearRect(0,0,w,h);if(!vals.length)return;let mn=Infinity,mx=-Infinity;for(let v of vals){if(v<mn)mn=v;if(v>mx)mx=v}let bins=Math.min(w,vals.length),step=vals.length/bins;x.beginPath();for(let j=0;j<bins;j++){let a=Math.floor(j*step),b=Math.max(a+1,Math.floor((j+1)*step)),sum=0;for(let k=a;k<b;k++)sum+=vals[k];let v=sum/(b-a),yy=h-10-(v-mn)/Math.max(1,mx-mn)*(h-20),xx=j/(bins-1)*w;if(j===0)x.moveTo(xx,yy);else x.lineTo(xx,yy)}x.strokeStyle='#3157d5';x.lineWidth=1.4;x.stroke()}
 updateGenerateState();
+$('model').addEventListener('change',()=>{
+  learned=null; readingFiles=false; $('files').value='';
+  $('fileInfo').textContent=`目前儀器：${$('model').value}｜請重新選取此儀器的舊 RND。`;
+  $('learnStats').classList.add('hidden'); $('waveBox').classList.add('hidden');
+  updateGenerateState();
+});
 $('files').addEventListener('change',async e=>{
  const fs=[...(e.target.files||[])]; if(!fs.length)return;
  readingFiles=true;learned=null;updateGenerateState();$('learnStats').classList.add('hidden');$('waveBox').classList.add('hidden');
@@ -59,8 +65,23 @@ $('files').addEventListener('change',async e=>{
        if(tm!==null){if(firstTm===null||tm<firstTm)firstTm=tm;if(lastTm===null||tm>lastTm)lastTm=tm}
      }
    }
-   if(found){chunks.push(Float32Array.from(vv));hourChunks.push(Uint8Array.from(hh))}else bad++;
-   $('fileInfo').textContent=`步驟 1/3｜讀取 RND：${fi+1}/${fs.length}｜${total.toLocaleString()} 筆 Lp`;
+   if(found){
+     if($('model').value==='NL-52' && vv.length){
+       // NL-52: ignore only contiguous calibration values at the beginning/end (~94 dB).
+       // Normal environmental peaks in the middle are preserved.
+       let cutA=0,cutB=vv.length;
+       while(cutA<Math.min(vv.length,120) && vv[cutA]>=93.0 && vv[cutA]<=95.0)cutA++;
+       let tail=0;while(tail<Math.min(vv.length-cutA,120) && vv[vv.length-1-tail]>=93.0 && vv[vv.length-1-tail]<=95.0)tail++;
+       if(cutA||tail){
+         // Undo statistics accumulated for stripped calibration points.
+         for(let q=0;q<cutA;q++){let v=vv[q],h=hh[q];total--;sum-=v;sum2-=v*v;hourSum[h]-=v;hourN[h]--}
+         for(let q=vv.length-tail;q<vv.length;q++){let v=vv[q],h=hh[q];total--;sum-=v;sum2-=v*v;hourSum[h]-=v;hourN[h]--}
+         cutB=vv.length-tail; vv.splice(cutB); hh.splice(cutB); vv.splice(0,cutA); hh.splice(0,cutA);
+       }
+     }
+     if(vv.length){chunks.push(Float32Array.from(vv));hourChunks.push(Uint8Array.from(hh))}else bad++;
+   }else bad++;
+   $('fileInfo').textContent=`步驟 1/3｜讀取 ${$('model').value} RND：${fi+1}/${fs.length}｜${total.toLocaleString()} 筆 Lp`;
    await new Promise(r=>setTimeout(r,0));
  }
  if(total<30){readingFiles=false;learned=null;updateGenerateState();$('fileInfo').textContent='找不到足夠的 Lp 數值，請確認是 NL-53／52／32 的 RND。';return}
@@ -82,7 +103,7 @@ $('files').addEventListener('change',async e=>{
  $('fileInfo').textContent='步驟 3/3｜完成波形模型…'; await new Promise(r=>setTimeout(r,20));
  learned={mean,sd,hourProfile,residuals,min:mn,max:mx,count:total};
  let range='';if(firstTm!==null&&lastTm!==null){let fmt=x=>new Date(x).toLocaleString('zh-TW',{hour12:false});range=`｜${fmt(firstTm)} ～ ${fmt(lastTm)}`}
- $('fileInfo').textContent=`完成：已讀取 ${fs.length-bad}/${fs.length} 個檔案｜${total.toLocaleString()} 筆 Lp｜約 ${(total/3600).toFixed(1)} 小時｜平均 ${mean.toFixed(1)} dB${range}${bad?`｜${bad} 檔無有效資料`:''}`;
+ $('fileInfo').textContent=`完成：${$('model').value}｜已讀取 ${fs.length-bad}/${fs.length} 個檔案｜${total.toLocaleString()} 筆 Lp｜約 ${(total/3600).toFixed(1)} 小時｜平均 ${mean.toFixed(1)} dB${range}${bad?`｜${bad} 檔無有效資料`:''}`;
  $('lFiles').textContent=`${fs.length-bad}/${fs.length}`;$('lCount').textContent=total.toLocaleString();$('lRange').textContent=`${mn.toFixed(1)} / ${mx.toFixed(1)}`;$('lSd').textContent=sd.toFixed(1)+' dB';$('learnStats').classList.remove('hidden');$('waveBox').classList.remove('hidden');drawLearnWave(preview);
  // 釋放原始大陣列，之後只留下小型學習模型。
  chunks=null;hourChunks=null;
@@ -212,16 +233,30 @@ function rnhText(model){
  let total=`${String(days).padStart(3,'0')}d ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${ss.toFixed(1).padStart(4,'0')}`;
  return `CSV\r\n\r\n[Property]\r\nType,NL-53\r\nSystem Version,01.03\r\nNX-43EX Version,01.03\r\nNX-43WR Version,01.01\r\nNX-43RT Version,01.01\r\nNX-43FT Version,01.00\r\nSerial Number,00162910\r\n\r\n[NL-53]\r\nStore Name,${mmdd()}\r\nIndex Number,0001\r\nMain Channel,On\r\nSub Channel1,Off\r\nSub Channel2,Off\r\nSub Channel3,Off\r\nFrequency Weighting (Main),A\r\nFrequency Weighting (Sub1),A\r\nFrequency Weighting (Sub2),A\r\nFrequency Weighting (Sub3),A\r\nTime Weighting (Main),F\r\nTime Weighting (Sub1),F\r\nTime Weighting (Sub2),F\r\nTime Weighting (Sub3),F\r\nDelay Time,Off\r\nWindscreen Correction,Off\r\nDiffuse Sound Field Correction,Off\r\nLN Mode,Lp\r\nPercentile 1,5.0\r\nPercentile 2,10.0\r\nPercentile 3,50.0\r\nPercentile 4,90.0\r\nPercentile 5,95.0\r\nInput Range,1Range\r\nAC OUT,Off\r\nDC OUT,Off\r\nIO Port,Off\r\nBaud Rate,115200\r\nPrinter,DPU-414\r\nComparator Channel,Main\r\nComparator Level,70\r\nUSB Class,Off\r\nLAN Setting,Off\r\nWeb Server,Off\r\nFTP Server,Off\r\nSocket Server,Off\r\nBattery Type,Alkaline\r\nLanguage,Chinese\r\n\r\n[Store]\r\nTime Setting,041d 16:00:00.0\r\nLp Store Interval,1s\r\nLeq Calculation Interval,Off\r\nMoving Leq Interval,10s\r\nTimer Auto Start Time,-\r\nTimer Auto Stop Time,-\r\nTimer Auto Interval,-\r\nSleep Mode,Off\r\nTrigger Mode,Off\r\nLevel Trigger Channel,Main\r\nLevel Trigger Level,70\r\n\r\n[Status]\r\nMeasurement Start Time,${start}\r\nMeasurement Stop Time,${stop}\r\nLp Data Number,${values.length}\r\nLeq Data Number,0\r\nTotal Measurement Time,${total}\r\n`;
 }
+function rnh52Text(){
+ const start=dt(new Date(startMs)), stop=dt(new Date(endMs));
+ let sec=Math.max(0,(endMs-startMs)/1000),days=Math.floor(sec/86400);sec-=days*86400;
+ let hh=Math.floor(sec/3600);sec-=hh*3600;let mm=Math.floor(sec/60),ss=sec-mm*60;
+ let total=`${String(days).padStart(2,'0')}d ${pad(hh)}:${pad(mm)}:${ss.toFixed(1).padStart(4,'0')}`;
+ return `CSV\r\n[Setting]\r\n\r\n[Property]\r\nSystem Version,2.1\r\nNX-42EX Version,1.9\r\nNX-42WR Version,1.7\r\nNX-42RT Version,1.9\r\nNX-42FT Version,1.3\r\nSerial Number,843192\r\n\r\n[NL-42]\r\nStore Name,${mmdd()}\r\nType,NL-52\r\nIndex Number,1\r\nFrequency Weighting,A\r\nTime Weighting,F\r\nOutput Level Range Upper,130\r\nOutput Level Range Lower,30\r\nDelay Time,Off\r\nWindscreen Correction,Off\r\nDiffuse Sound Field Correction,Off\r\nLN Mode,Leq_1s\r\nDisplay Leq,On\r\nDisplay LE,On\r\nDisplay Lmax,On\r\nDisplay Lmin,On\r\nDisplay Ly,Off\r\nDisplay LN1,On\r\nDisplay LN2,On\r\nDisplay LN3,On\r\nDisplay LN4,On\r\nDisplay LN5,On\r\nDisplay Time Level,On\r\nPercentile 1,5\r\nPercentile 2,10\r\nPercentile 3,50\r\nPercentile 4,90\r\nPercentile 5,95.0\r\nLy Type,Off\r\nAC OUT,Main\r\nDC OUT,Main\r\nComparator,Off\r\nComparator Level,70\r\nComparator Channel,Main\r\nBattery Type,Alkaline\r\nCommunication Interface,Off\r\nBaud Rate,9600\r\nLanguage,Simplified Chinese\r\n\r\n[NX-42EX]\r\nLp Store Interval,1 s\r\nLeq Calculation Interval,Off\r\nTimer Auto Start Time,-\r\nTimer Auto Stop Time,-\r\nTimer Auto Interval,-\r\nSleep Mode,Off\r\n\r\n[Status]\r\nMeasurement Start Time,${start}\r\nMeasurement Stop Time,${stop}\r\nLp Data Number,${values.length}\r\nLeq Data Number,-\r\nMeasure Time,${total}\r\n`;
+}
 function summaryText(model){return `【模擬／測試資料】\r\n儀器型號：${model}\r\n開始時間：${dt(new Date(startMs))}\r\n結束時間：${dt(new Date(endMs))}\r\n每秒筆數：${values.length}\r\n總時數：${(values.length/3600).toFixed(1)}\r\n整體 Leq：${overall.leq.toFixed(1)} dB\r\nLmax：${overall.max.toFixed(1)} dB\r\n用途：流程測試、軟體驗證與演練；不得作為實際量測紀錄。\r\n`}
 async function downloadInstrument(){
  if(!values||!values.length)return; if(typeof JSZip==='undefined')return alert('ZIP 元件尚未載入，請確認網路後重新整理。');
- const m=$('model').value,tag=mmdd(),zip=new JSZip(),root=zip.folder(`Auto_${tag}`);root.file(`Auto_${tag}.RNH`,rnhText(m));zip.file('模擬結果摘要.txt',summaryText(m));
+ const m=$('model').value,tag=mmdd(),zip=new JSZip(),root=zip.folder(`Auto_${tag}`);root.file(`Auto_${tag}.RNH`,m==='NL-52'?rnh52Text():rnhText(m));zip.file('模擬結果摘要.txt',summaryText(m));
  if(m==='NL-53'){
    let folder=root.folder('Auto_Lp_01'),chunk=3600;
    for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['Address,Start Time,Lp(Main),Leq(Main),Lmax(Main),Lmin(Main),Lpeak(Main),LIeq(Main),Over(Main),Under(Main),Marker1,Marker2,Marker3,Marker4,'];let runMax=-Infinity,runMin=Infinity,sum=0;for(let i=c;i<to;i++){let v=values[i];runMax=Math.max(runMax,v);runMin=Math.min(runMin,v);sum+=10**(v/10);let leq=10*Math.log10(sum/(i-c+1)),peak=v+3.2;lines.push(`${String(i+1).padStart(11)},${dt(new Date(startMs+i*1000))}.600, ${v.toFixed(1)}, ${leq.toFixed(1)}, ${runMax.toFixed(1)}, ${runMin.toFixed(1)}, ${peak.toFixed(1)},  -.-,-,-,-,-,-,-,`)}folder.file(`NL_0001_SLM_Lp _${tag}_${pad(c/chunk+1,4)}.RND`,lines.join('\r\n')+'\r\n')}
  }else if(m==='NL-52'){
    let folder=root.folder('AUTO_LP'),chunk=36000;
-   for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT','Address,Start Time,Lp,Over,Under,Output Over,Marker 1,Marker 2,'];for(let i=c;i<to;i++)lines.push(`${String(i+1).padStart(9)},${dt(new Date(startMs+i*1000))}.0, ${values[i].toFixed(1)},----,-----,--------,-,-,`);folder.file(`NL_001_SLM_Lp_${tag}_${pad(c/chunk+1,4)}.RND`,lines.join('\r\n'))}
+   for(let c=0;c<values.length;c+=chunk){
+     let to=Math.min(values.length,c+chunk),lines=['Address,Start Time,Lp,Over,Under,Output Over,Marker 1,Marker 2,'];
+     for(let i=c;i<to;i++){
+       let v=values[i],tm=new Date(startMs+(i+1)*1000);
+       lines.push(`${String(i+1).padStart(9)},${dt(tm)}.3, ${v.toFixed(1)},----,-----,--------,-,-,`);
+     }
+     folder.file(`NL_001_SLM_Lp _${tag}_${pad(c/chunk+1,4)}.rnd`,lines.join('\r\n')+'\r\n');
+   }
  }else{
    let folder=root.folder('AUTO_LP'),chunk=60000;
    for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT'];for(let i=c;i<to;i++)lines.push(` ${values[i].toFixed(1)}, , , ,`);folder.file(`AU1_${pad(c/chunk,4)}.RND`,lines.join('\r\n'))}
