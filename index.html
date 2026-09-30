@@ -7,14 +7,14 @@
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V1.5 NL-53 自然波形版 · 精準格式版 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V1.6 NL-53 自然波形版 · 精準格式版 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
 </div></section>
 <section class="card">
 <div class="grid3"><div><label>儀器型號</label><select id="model"><option>NL-53</option><option>NL-52</option><option>NL-32</option></select></div><div><label>開始時間</label><input id="start" type="datetime-local" step="1"></div><div><label>結束時間</label><input id="end" type="datetime-local" step="1"></div></div>
-<div id="newPanel"><div class="grid3"><div><label>環境場景</label><select id="scene"><option value="road">一般道路</option><option value="arterial">主要幹道／大馬路</option><option value="residential">住宅區</option><option value="mixed">住宅區＋道路</option><option value="industrial">工業區</option><option value="construction">工地周邊</option><option value="commercial">商業區／市區</option><option value="quiet">郊區／安靜地區</option></select></div><div><label>整體強度</label><select id="strength"><option value="-3">偏低</option><option value="0" selected>一般</option><option value="3">偏高</option></select></div><div><label>偶發事件</label><select id="events"><option value="0.5">少</option><option value="1" selected>一般</option><option value="1.7">多</option></select></div></div></div>
+<div id="newPanel"><div class="grid3"><div><label>環境場景</label><select id="scene"><option value="road">一般道路</option><option value="arterial">主要幹道／大馬路</option><option value="rail">高鐵／鐵路旁</option><option value="residential">住宅區</option><option value="mixed">住宅區＋道路</option><option value="industrial">工業區</option><option value="construction">工地周邊</option><option value="commercial">商業區／市區</option><option value="quiet">郊區／安靜地區</option></select></div><div><label>整體強度</label><select id="strength"><option value="-3">偏低</option><option value="0" selected>一般</option><option value="3">偏高</option></select></div><div><label>偶發事件</label><select id="events"><option value="0.5">少</option><option value="1" selected>一般</option><option value="1.7">多</option></select></div></div></div>
 <div id="learnPanel" class="hidden"><label>舊數據 RND（可一次選多檔）</label><input id="files" type="file" multiple accept=".rnd,.RND,.txt,.TXT"><div class="grid2"><div><label>參考資料相似程度</label><select id="similarity"><option value="0.45">低</option><option value="0.7" selected>中</option><option value="0.9">高</option></select></div><div><label>新資料強度修正（dB）</label><input id="offset" type="number" value="0" min="-15" max="15" step="0.1"></div></div><div class="info" id="fileInfo">尚未讀取參考檔。</div></div>
 <div class="warn">產出的檔案會標示為模擬／測試資料，適合流程測試、軟體驗證與演練，不應冒充實際儀器量測紀錄。</div>
 <div class="row"><button class="btn primary" onclick="generate()">▶ 產生模擬資料</button><button class="btn secondary" onclick="clearAll()">清除</button></div><div class="progress hidden" id="prog"><i id="bar"></i></div>
@@ -29,7 +29,7 @@ function setDefaults(){let n=new Date();n.setMinutes(0,0,0);$('start').value=new
 function setMode(m){mode=m;$('mNew').classList.toggle('active',m==='new');$('mLearn').classList.toggle('active',m==='learn');$('newPanel').classList.toggle('hidden',m!=='new');$('learnPanel').classList.toggle('hidden',m!=='learn')}
 $('files').addEventListener('change',async e=>{let vals=[];for(const f of e.target.files){let t=await f.text();for(const line of t.split(/\r?\n/)){let parts=line.split(',');let v=null;if(/^\s*\d+(\.\d+)?\s*,/.test(line)&&parts.length<=6)v=parseFloat(parts[0]);else if(parts.length>2&&/^\s*\d+\s*$/.test(parts[0]))v=parseFloat(parts[2]);if(Number.isFinite(v)&&v>15&&v<140)vals.push(v)}}if(vals.length<30){learned=null;$('fileInfo').textContent='找不到足夠的 Lp 數值，請確認是 NL-53／52／32 的 RND。';return}let dif=[];for(let i=1;i<vals.length;i++)dif.push(vals[i]-vals[i-1]);learned={vals,mean:vals.reduce((a,b)=>a+b,0)/vals.length,sd:Math.sqrt(vals.reduce((a,b)=>a+(b-(vals.reduce((x,y)=>x+y,0)/vals.length))**2,0)/vals.length),dif};$('fileInfo').textContent=`已讀取 ${e.target.files.length} 個檔案，共 ${vals.length.toLocaleString()} 筆 Lp；平均 ${learned.mean.toFixed(1)} dB，波動 SD ${learned.sd.toFixed(1)} dB。`});
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
-const base={road:56,arterial:61,residential:48,mixed:53,industrial:57,construction:58,commercial:57,quiet:43};
+const base={road:57,arterial:60,rail:56,residential:48,mixed:54,industrial:57,construction:58,commercial:57,quiet:43};
 function dayAdjFloat(hour,scene){const pts=[[0,-5.5],[4,-7],[5.5,-5],[7,1],[8.2,4.5],[10,2.2],[14,1.5],[16,2.5],[17.5,4.5],[19.5,2.2],[22,-1],[24,-5.5]];let a=pts[0][1];for(let i=1;i<pts.length;i++){if(hour<=pts[i][0]){let [x0,y0]=pts[i-1],[x1,y1]=pts[i];let t=(hour-x0)/(x1-x0);t=t*t*(3-2*t);a=y0+(y1-y0)*t;break}}if(scene==='residential'||scene==='quiet')a*=.72;if(scene==='commercial'&&hour>=10&&hour<=21)a+=1.8;return a}
 function percentile(arr,p){let a=[...arr].sort((x,y)=>x-y);return a[Math.min(a.length-1,Math.floor((1-p)*a.length))]}
 function stats(a){let leq=10*Math.log10(a.reduce((s,x)=>s+10**(x/10),0)/a.length);return{leq,max:Math.max(...a),l5:percentile(a,.05),l10:percentile(a,.10),l50:percentile(a,.50),l90:percentile(a,.90),l95:percentile(a,.95),min:Math.min(...a)}}
@@ -39,49 +39,59 @@ async function generate(){
  $('prog').classList.remove('hidden');$('bar').style.width='2%';$('result').classList.add('hidden');await new Promise(r=>setTimeout(r,10));
  startMs=s.getTime();endMs=e.getTime();values=new Float32Array(n);
  const scene=$('scene').value,str=Number($('strength').value),evRate=Number($('events').value||1),sim=Number($('similarity').value||.7),off=Number($('offset').value||0);
- let bg=mode==='learn'?learned.mean:(base[scene]+str),fast=0,medium=0,slow=0,sumE=0,max=-Infinity,min=Infinity;
- let events=[];
- const roadLike=scene==='arterial'||scene==='road'||scene==='mixed';
- const baseRate=(scene==='arterial'?0.0017:roadLike?0.00125:scene==='commercial'?0.00105:scene==='industrial'||scene==='construction'?0.0009:0.00045)*evRate;
- function addEvent(){
-   let r=Math.random(),dur,amp,shape;
-   if(roadLike){
-     if(r<.70){dur=10+((Math.random()*26)|0);amp=4.5+Math.random()*7;shape=1.25}
-     else if(r<.94){dur=25+((Math.random()*55)|0);amp=3+Math.random()*5.5;shape=1.6}
-     else{dur=4+((Math.random()*8)|0);amp=8+Math.random()*6;shape=.9}
-   }else{dur=8+((Math.random()*35)|0);amp=3+Math.random()*7;shape=1.4}
-   events.push({age:0,dur,amp,shape});
+ let bg=mode==='learn'?learned.mean:(base[scene]+str),fast=0,medium=0,slow=0,micro=0,sumE=0,max=-Infinity,min=Infinity;
+ let events=[];let dayKey='',dayBias=0,dayTraffic=1;
+ const roadLike=scene==='arterial'||scene==='road'||scene==='mixed'||scene==='rail';
+ function refreshDay(d){let k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();if(k!==dayKey){dayKey=k;dayBias=randn()*.75;dayTraffic=Math.max(.78,Math.min(1.22,1+randn()*.10));}}
+ function addEvent(kind='road'){
+   let r=Math.random(),dur,amp,shape,asym=.42;
+   if(kind==='rail'){
+     dur=35+((Math.random()*95)|0); amp=7+Math.random()*11; shape=.75+Math.random()*.5; asym=.28+Math.random()*.12;
+   }else if(roadLike){
+     if(r<.58){dur=7+((Math.random()*22)|0);amp=4+Math.random()*7;shape=.8+Math.random()*.55}
+     else if(r<.88){dur=18+((Math.random()*55)|0);amp=5+Math.random()*9;shape=.9+Math.random()*.65}
+     else{dur=35+((Math.random()*95)|0);amp=6+Math.random()*12;shape=.75+Math.random()*.55}
+   }else{dur=8+((Math.random()*45)|0);amp=3+Math.random()*8;shape=.9+Math.random()*.7}
+   events.push({age:0,dur,amp,shape,asym});
  }
  for(let i=0;i<n;i++){
-   const ms=startMs+i*1000,d=new Date(ms),hour=d.getHours()+d.getMinutes()/60+d.getSeconds()/3600;
-   let target=mode==='learn'?learned.mean+off+dayAdjFloat(hour,'road')*.10*(1-sim):base[scene]+str+dayAdjFloat(hour,scene);
+   const ms=startMs+i*1000,d=new Date(ms),hour=d.getHours()+d.getMinutes()/60+d.getSeconds()/3600;refreshDay(d);
+   let target=mode==='learn'?learned.mean+off+dayAdjFloat(hour,'road')*.10*(1-sim):base[scene]+str+dayAdjFloat(hour,scene)+dayBias;
    let v;
    if(mode==='learn'){
-     let dd=learned.dif[(Math.random()*learned.dif.length)|0]||0;dd=Math.max(-3.5,Math.min(3.5,dd));
-     slow=.9994*slow+randn()*.035;medium=.992*medium+randn()*.10;fast=.72*fast+randn()*.28;
-     bg+=(target-bg)*.00045+dd*sim*.12;v=bg+slow+medium+fast;
+     let dd=learned.dif[(Math.random()*learned.dif.length)|0]||0;dd=Math.max(-5,Math.min(5,dd));
+     slow=.99945*slow+randn()*.045;medium=.993*medium+randn()*.14;fast=.62*fast+randn()*.48;micro=.28*micro+randn()*.55;
+     bg+=(target-bg)*.00040+dd*sim*.13;v=bg+slow+medium+fast+micro;
    }else{
-     // 三種時間尺度：數小時、數分鐘、數秒，避免平台與階梯。
-     slow=.9997*slow+randn()*.026; slow=Math.max(-2.8,Math.min(2.8,slow));
-     medium=.996*medium+randn()*.075; medium=Math.max(-2.2,Math.min(2.2,medium));
-     fast=.78*fast+randn()*.30;
-     bg+=(target-bg)*.00038+randn()*.018;
-     v=bg+slow+medium+fast;
-     // 事件機率隨時段平滑改變；允許少量事件重疊。
-     let activity=1+Math.max(-.35,Math.min(.55,dayAdjFloat(hour,scene)/12));
-     if(events.length<3&&Math.random()<baseRate*activity)addEvent();
+     // 背景不是細線：長、中、短、秒級四種尺度共同形成「有厚度」的噪音帶。
+     slow=.99955*slow+randn()*.040; slow=Math.max(-3.8,Math.min(3.8,slow));
+     medium=.994*medium+randn()*.13; medium=Math.max(-3.4,Math.min(3.4,medium));
+     fast=.66*fast+randn()*.52; fast=Math.max(-3.0,Math.min(3.0,fast));
+     micro=.30*micro+randn()*.68;
+     bg+=(target-bg)*.00034+randn()*.025;
+     v=bg+slow+medium+fast+micro;
+     // 夜間降低事件密度，但保留零星通過事件；白天形成重疊交通噪音帶。
+     let daylight=hour>=6&&hour<22;
+     let rush=(Math.exp(-((hour-8)/1.45)**2)+Math.exp(-((hour-17.6)/1.65)**2));
+     let nightFactor=daylight?1:(hour>=22||hour<5?.28:.55);
+     let baseRate=(scene==='arterial'?.0042:scene==='road'?.0031:scene==='mixed'?.0025:scene==='rail'?.0017:scene==='commercial'?.0021:scene==='industrial'||scene==='construction'?.0017:.0007);
+     let activity=baseRate*evRate*dayTraffic*nightFactor*(1+.30*rush);
+     if(events.length<8&&Math.random()<activity)addEvent(scene==='rail'&&Math.random()<.42?'rail':'road');
+     // 鐵路旁另外加入較長的列車通過事件，白天較多、凌晨較少。
+     if(scene==='rail'&&events.length<8&&Math.random()<(daylight?.00034:.00007)*evRate*dayTraffic)addEvent('rail');
      let add=0,next=[];
      for(const ev of events){
-       let x=(ev.age+1)/(ev.dur+1);
-       // 非完全對稱：接近車輛時較快上升，離開時較慢下降。
-       let y=x<.42?Math.pow(x/.42,1.35):Math.pow(Math.max(0,(1-x)/.58),1.75);
-       add+=ev.amp*Math.pow(Math.max(0,y),ev.shape);
+       let x=(ev.age+1)/(ev.dur+1),a=ev.asym||.42;
+       let y=x<a?Math.pow(x/a,1.05):Math.pow(Math.max(0,(1-x)/(1-a)),1.30);
+       // 每個事件內仍有小幅起伏，避免完美鐘形。
+       add+=ev.amp*Math.pow(Math.max(0,y),ev.shape)*(1+.06*Math.sin(ev.age*.73)+.035*randn());
        ev.age++;if(ev.age<ev.dur)next.push(ev);
      }
-     events=next;v+=add;
-     if(Math.random()<0.000018*evRate)v+=4+Math.random()*7;
+     events=next;v+=Math.max(0,add);
+     // 少量短促高值，控制頻率避免 Leq 被拉爆。
+     if(Math.random()<(daylight?.000045:.000018)*evRate)v+=5+Math.random()*10;
    }
-   v=Math.max(30,Math.min(100,v));v=Math.round(v*10)/10;values[i]=v;sumE+=10**(v/10);if(v>max)max=v;if(v<min)min=v;
+   v=Math.max(30,Math.min(scene==='rail'||scene==='arterial'?104:98,v));v=Math.round(v*10)/10;values[i]=v;sumE+=10**(v/10);if(v>max)max=v;if(v<min)min=v;
    if(i%50000===0){$('bar').style.width=`${2+78*i/n}%`;await new Promise(r=>setTimeout(r,0));}
  }
  overall={leq:10*Math.log10(sumE/n),max,min};$('bar').style.width='84%';await new Promise(r=>setTimeout(r,0));renderFast();$('bar').style.width='100%';setTimeout(()=>$('prog').classList.add('hidden'),350)
