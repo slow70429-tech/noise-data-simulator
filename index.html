@@ -7,7 +7,7 @@
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.0 NL-53 車流疏密版 · 群聚／空檔／偶發事件 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.1 NL-53 多檔學習版 · 批次 RND 讀取／合併分析 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -32,7 +32,34 @@ setDefaults();
 $('end').addEventListener('input',()=>endManuallyEdited=true);
 $('start').addEventListener('change',()=>{if(!endManuallyEdited){let ss=new Date($('start').value);if(!isNaN(ss)){let ee=new Date(ss.getTime()+72*3600000);$('end').value=localDT(ee)}}});
 function setMode(m){mode=m;$('mNew').classList.toggle('active',m==='new');$('mLearn').classList.toggle('active',m==='learn');$('newPanel').classList.toggle('hidden',m!=='new');$('learnPanel').classList.toggle('hidden',m!=='learn')}
-$('files').addEventListener('change',async e=>{let vals=[];for(const f of e.target.files){let t=await f.text();for(const line of t.split(/\r?\n/)){let parts=line.split(',');let v=null;if(/^\s*\d+(\.\d+)?\s*,/.test(line)&&parts.length<=6)v=parseFloat(parts[0]);else if(parts.length>2&&/^\s*\d+\s*$/.test(parts[0]))v=parseFloat(parts[2]);if(Number.isFinite(v)&&v>15&&v<140)vals.push(v)}}if(vals.length<30){learned=null;$('fileInfo').textContent='找不到足夠的 Lp 數值，請確認是 NL-53／52／32 的 RND。';return}let dif=[];for(let i=1;i<vals.length;i++)dif.push(vals[i]-vals[i-1]);learned={vals,mean:vals.reduce((a,b)=>a+b,0)/vals.length,sd:Math.sqrt(vals.reduce((a,b)=>a+(b-(vals.reduce((x,y)=>x+y,0)/vals.length))**2,0)/vals.length),dif};$('fileInfo').textContent=`已讀取 ${e.target.files.length} 個檔案，共 ${vals.length.toLocaleString()} 筆 Lp；平均 ${learned.mean.toFixed(1)} dB，波動 SD ${learned.sd.toFixed(1)} dB。`});
+$('files').addEventListener('change',async e=>{
+ const fs=[...(e.target.files||[])]; if(!fs.length)return;
+ let vals=[],timed=[],bad=0;
+ $('fileInfo').textContent=`讀取中：0/${fs.length} 個檔案…`;
+ for(let fi=0;fi<fs.length;fi++){
+   const f=fs[fi],t=await f.text(); let found=0;
+   for(const line of t.split(/\r?\n/)){
+     let parts=line.split(','),v=null,tm=null;
+     if(/^\s*\d+(\.\d+)?\s*,/.test(line)&&parts.length<=6)v=parseFloat(parts[0]);
+     else if(parts.length>2&&/^\s*\d+\s*$/.test(parts[0]))v=parseFloat(parts[2]);
+     else{
+       for(let k=parts.length-1;k>=0;k--){let z=parseFloat(parts[k]);if(Number.isFinite(z)&&z>15&&z<140){v=z;break}}
+     }
+     for(const p of parts){if(/^\s*\d{4}[\/-]\d{1,2}[\/-]\d{1,2}/.test(p)){let x=Date.parse(p.trim().replace(/\//g,'-'));if(Number.isFinite(x)){tm=x;break}}}
+     if(Number.isFinite(v)&&v>15&&v<140){found++; if(tm!==null)timed.push({tm,v}); else vals.push(v)}
+   }
+   if(!found)bad++;
+   if((fi&3)===0){$('fileInfo').textContent=`讀取中：${fi+1}/${fs.length} 個檔案…`;await new Promise(r=>setTimeout(r,0))}
+ }
+ if(timed.length){timed.sort((a,b)=>a.tm-b.tm);vals.push(...timed.map(x=>x.v))}
+ if(vals.length<30){learned=null;$('fileInfo').textContent='找不到足夠的 Lp 數值，請確認是 NL-53／52／32 的 RND。';return}
+ let sum=0;for(const v of vals)sum+=v;let mean=sum/vals.length,ss=0;for(const v of vals)ss+=(v-mean)**2;
+ let dif=[];for(let i=1;i<vals.length;i++)dif.push(vals[i]-vals[i-1]);
+ learned={vals,mean,sd:Math.sqrt(ss/vals.length),dif};
+ let range='';
+ if(timed.length){let fmt=x=>new Date(x).toLocaleString('zh-TW',{hour12:false});range=`｜${fmt(timed[0].tm)} ～ ${fmt(timed[timed.length-1].tm)}`}
+ $('fileInfo').textContent=`已讀取 ${fs.length-bad}/${fs.length} 個檔案｜共 ${vals.length.toLocaleString()} 筆 Lp｜約 ${(vals.length/3600).toFixed(1)} 小時｜平均 ${mean.toFixed(1)} dB｜SD ${learned.sd.toFixed(1)} dB${range}${bad?`｜${bad} 檔無有效資料`:''}`;
+});
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 const base={road:56,arterial:61,rail:56,residential:48,mixed:53,industrial:57,construction:58,commercial:57,quiet:43};
 function dayAdjFloat(hour,scene){const pts=[[0,-5.5],[4,-7],[5.5,-5],[7,1],[8.2,4.5],[10,2.2],[14,1.5],[16,2.5],[17.5,4.5],[19.5,2.2],[22,-1],[24,-5.5]];let a=pts[0][1];for(let i=1;i<pts.length;i++){if(hour<=pts[i][0]){let [x0,y0]=pts[i-1],[x1,y1]=pts[i];let t=(hour-x0)/(x1-x0);t=t*t*(3-2*t);a=y0+(y1-y0)*t;break}}if(scene==='residential'||scene==='quiet')a*=.72;if(scene==='commercial'&&hour>=10&&hour<=21)a+=1.8;return a}
