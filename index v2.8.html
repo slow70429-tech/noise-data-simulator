@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>噪音數據模擬助手 V2.9 三機優化版</title>
+<title>噪音數據模擬助手 V2.8 NL-32 版</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.9 · NL-53／NL-52／NL-32 三機優化版 · 舊數據主導 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.8 · NL-53／NL-52 定版＋NL-32 原格式支援 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -15,7 +15,7 @@
 <section class="card">
 <div class="grid3"><div><label>儀器型號</label><select id="model"><option>NL-53</option><option>NL-52</option><option>NL-32</option></select></div><div><label>開始時間</label><input id="start" type="datetime-local" step="1"></div><div><label>結束時間</label><input id="end" type="datetime-local" step="1"></div></div>
 <div id="newPanel"><div class="grid3"><div><label>環境場景</label><select id="scene"><option value="road">一般道路</option><option value="arterial">主要幹道／大馬路</option><option value="rail">高鐵／鐵路旁</option><option value="residential">住宅區</option><option value="mixed">住宅區＋道路</option><option value="industrial">工業區</option><option value="construction">工地周邊</option><option value="commercial">商業區／市區</option><option value="quiet">郊區／安靜地區</option></select></div><div><label>整體強度</label><select id="strength"><option value="-3">偏低</option><option value="0" selected>一般</option><option value="3">偏高</option></select></div><div><label>偶發事件</label><select id="events"><option value="0.5">少</option><option value="1" selected>一般</option><option value="1.7">多</option></select></div></div></div>
-<div id="learnPanel" class="hidden"><label>舊數據檔案</label><div id="fileHint" class="small" style="margin:4px 0 7px">NL-53：一次選取 Auto_Lp_01 內全部 RND。</div><input id="files" type="file" multiple accept=".rnd,.RND,.rnh,.RNH,.txt,.TXT"><div class="grid2"><div><label>參考資料相似程度</label><select id="similarity"><option value="0.45">低</option><option value="0.7" selected>中</option><option value="0.9">高</option></select></div><div><label>新資料強度修正（dB）</label><input id="offset" type="number" value="0" min="-15" max="15" step="0.1"></div></div><div class="info" id="fileInfo">尚未讀取參考檔。</div><div id="learnStats" class="stats hidden"><div class="stat"><span>有效檔案</span><b id="lFiles">-</b></div><div class="stat"><span>有效 Lp</span><b id="lCount">-</b></div><div class="stat"><span>Min / Max</span><b id="lRange">-</b></div><div class="stat"><span>波動 SD</span><b id="lSd">-</b></div></div><div id="waveBox" class="hidden" style="margin-top:12px"><label>舊資料波形縮圖</label><canvas id="waveCanvas" width="900" height="150" style="width:100%;height:150px;border:1px solid #e3e8f1;border-radius:12px;background:#fafbfe"></canvas></div></div>
+<div id="learnPanel" class="hidden"><label>舊數據檔案（RND 可多選；NL-32 建議連 RNH 一起選）</label><input id="files" type="file" multiple accept=".rnd,.RND,.rnh,.RNH,.txt,.TXT"><div class="grid2"><div><label>參考資料相似程度</label><select id="similarity"><option value="0.45">低</option><option value="0.7" selected>中</option><option value="0.9">高</option></select></div><div><label>新資料強度修正（dB）</label><input id="offset" type="number" value="0" min="-15" max="15" step="0.1"></div></div><div class="info" id="fileInfo">尚未讀取參考檔。</div><div id="learnStats" class="stats hidden"><div class="stat"><span>有效檔案</span><b id="lFiles">-</b></div><div class="stat"><span>有效 Lp</span><b id="lCount">-</b></div><div class="stat"><span>Min / Max</span><b id="lRange">-</b></div><div class="stat"><span>波動 SD</span><b id="lSd">-</b></div></div><div id="waveBox" class="hidden" style="margin-top:12px"><label>舊資料波形縮圖</label><canvas id="waveCanvas" width="900" height="150" style="width:100%;height:150px;border:1px solid #e3e8f1;border-radius:12px;background:#fafbfe"></canvas></div></div>
 <div class="warn">產出的檔案會標示為模擬／測試資料，適合流程測試、軟體驗證與演練，不應冒充實際儀器量測紀錄。</div>
 <div class="row"><button class="btn primary" id="generateBtn" onclick="generate()">▶ 產生模擬資料</button><button class="btn secondary" onclick="clearAll()">清除</button></div><div class="progress hidden" id="prog"><i id="bar"></i></div>
 </section>
@@ -35,18 +35,9 @@ function updateGenerateState(){let b=$('generateBtn');b.disabled=(mode==='learn'
 function setMode(m){mode=m;$('mNew').classList.toggle('active',m==='new');$('mLearn').classList.toggle('active',m==='learn');$('newPanel').classList.toggle('hidden',m!=='new');$('learnPanel').classList.toggle('hidden',m!=='learn');updateGenerateState()}
 function drawLearnWave(vals){let c=$('waveCanvas'),x=c.getContext('2d'),w=c.width,h=c.height;x.clearRect(0,0,w,h);if(!vals.length)return;let mn=Infinity,mx=-Infinity;for(let v of vals){if(v<mn)mn=v;if(v>mx)mx=v}let bins=Math.min(w,vals.length),step=vals.length/bins;x.beginPath();for(let j=0;j<bins;j++){let a=Math.floor(j*step),b=Math.max(a+1,Math.floor((j+1)*step)),sum=0;for(let k=a;k<b;k++)sum+=vals[k];let v=sum/(b-a),yy=h-10-(v-mn)/Math.max(1,mx-mn)*(h-20),xx=j/(bins-1)*w;if(j===0)x.moveTo(xx,yy);else x.lineTo(xx,yy)}x.strokeStyle='#3157d5';x.lineWidth=1.4;x.stroke()}
 updateGenerateState();
-function updateInstrumentHint(){
- const m=$('model').value;
- const hint=m==='NL-53'?'NL-53：一次選取 Auto_Lp_01 內全部 RND。':
-            m==='NL-52'?'NL-52：一次選取 AUTO_LP 內全部 RND。':
-            'NL-32：建議把 AU1_xxxx.RNH 與全部 AU1_xxxx.RND 一起選，時段學習最準確。';
- if($('fileHint'))$('fileHint').textContent=hint;
-}
-updateInstrumentHint();
 $('model').addEventListener('change',()=>{
   learned=null; readingFiles=false; $('files').value='';
-  updateInstrumentHint();
-  $('fileInfo').textContent=`目前儀器：${$('model').value}｜請匯入這台儀器的舊數據。`;
+  $('fileInfo').textContent=`目前儀器：${$('model').value}｜請重新選取此儀器的舊 RND。`;
   $('learnStats').classList.add('hidden'); $('waveBox').classList.add('hidden');
   updateGenerateState();
 });
@@ -98,7 +89,7 @@ $('files').addEventListener('change',async e=>{
      }
      if(vv.length){chunks.push(Float32Array.from(vv));hourChunks.push(Uint8Array.from(hh))}else bad++;
    }else bad++;
-   $('fileInfo').textContent=`步驟 1/3｜${$('model').value}｜讀取 ${fi+1}/${fs.length} 檔｜${total.toLocaleString()} 筆有效 Lp`;
+   $('fileInfo').textContent=`步驟 1/3｜讀取 ${$('model').value} RND：${fi+1}/${fs.length}｜${total.toLocaleString()} 筆 Lp`;
    await new Promise(r=>setTimeout(r,0));
  }
  if(total<30){readingFiles=false;learned=null;updateGenerateState();$('fileInfo').textContent='找不到足夠的 Lp 數值，請確認是 NL-53／52／32 的 RND。';return}
@@ -122,7 +113,7 @@ $('files').addEventListener('change',async e=>{
  $('fileInfo').textContent='步驟 3/3｜完成波形模型…'; await new Promise(r=>setTimeout(r,20));
  learned={mean,sd,hourProfile,residuals,resHours,min:mn,max:mx,count:total};
  let range='';if(firstTm!==null&&lastTm!==null){let fmt=x=>new Date(x).toLocaleString('zh-TW',{hour12:false});range=`｜${fmt(firstTm)} ～ ${fmt(lastTm)}`}
- $('fileInfo').textContent=`完成：${$('model').value}${$('model').value==='NL-32'?(metaFile?'｜RNH 時間已套用':'｜未選 RNH，時段以資料順序估算'):''}｜已讀取 ${fs.length-bad}/${fs.length} 個檔案｜${total.toLocaleString()} 筆 Lp｜約 ${(total/3600).toFixed(1)} 小時｜平均 ${mean.toFixed(1)} dB${range}${bad?`｜${bad} 檔無有效資料`:''}`;
+ $('fileInfo').textContent=`完成：${$('model').value}｜已讀取 ${fs.length-bad}/${fs.length} 個檔案｜${total.toLocaleString()} 筆 Lp｜約 ${(total/3600).toFixed(1)} 小時｜平均 ${mean.toFixed(1)} dB${range}${bad?`｜${bad} 檔無有效資料`:''}`;
  $('lFiles').textContent=`${fs.length-bad}/${fs.length}`;$('lCount').textContent=total.toLocaleString();$('lRange').textContent=`${mn.toFixed(1)} / ${mx.toFixed(1)}`;$('lSd').textContent=sd.toFixed(1)+' dB';$('learnStats').classList.remove('hidden');$('waveBox').classList.remove('hidden');drawLearnWave(preview);
  // 釋放原始大陣列，之後只留下小型學習模型。
  chunks=null;hourChunks=null;
