@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>噪音數據模擬助手 V2.7 舊數據平滑銜接版</title>
+<title>噪音數據模擬助手 V2.8 NL-32 版</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:18px}.head{background:#172554;color:white;border-radius:20px;padding:22px;box-shadow:0 8px 24px #17255422}.head h1{margin:0 0 6px;font-size:26px}.head p{margin:0;opacity:.85}.badge{display:inline-block;margin-top:12px;padding:5px 9px;border-radius:999px;background:#ffffff1c;font-size:12px}.card{background:white;border-radius:18px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #17255412}.modegrid,.grid3,.grid2{display:grid;gap:12px}.modegrid{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}.mode{border:2px solid #dbe3f0;background:#fff;border-radius:16px;padding:17px;text-align:left;cursor:pointer}.mode.active{border-color:#3157d5;background:#eef3ff}.mode b{font-size:17px;display:block;margin-bottom:4px}.mode small{color:#657089}label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}select,input{width:100%;border:1px solid #cad3e1;border-radius:11px;padding:12px;font-size:16px;background:white}.btn{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:#3157d5;color:white}.secondary{background:#e9eef8;color:#23314d}.danger{background:#fff0f0;color:#a52626}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.info{background:#f7f9fd;border:1px solid #e2e8f3;border-radius:12px;padding:12px;font-size:13px;color:#536079;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{background:#f5f7fb;border-radius:12px;padding:11px}.stat span{display:block;font-size:11px;color:#788399}.stat b{font-size:17px}.tablewrap{overflow:auto;max-height:330px;border:1px solid #e3e8f1;border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:8px 10px;border-bottom:1px solid #edf0f5;text-align:right}th{position:sticky;top:0;background:#f5f7fb}th:first-child,td:first-child{text-align:left}.progress{height:8px;background:#e7ecf5;border-radius:99px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;width:0;background:#3157d5}.warn{font-size:12px;color:#8a5a00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}@media(max-width:680px){.modegrid,.grid3,.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}.head h1{font-size:22px}}
 </style></head>
 <body><div class="wrap">
-<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.7 · NL-53／NL-52 舊數據主導＋片段平滑銜接 · 模擬／測試用途</span></section>
+<section class="head"><h1>噪音數據模擬助手</h1><p>Noise Data Simulator · NL-53 / NL-52 / NL-32</p><span class="badge">V2.8 · NL-53／NL-52 定版＋NL-32 原格式支援 · 模擬／測試用途</span></section>
 <section class="card"><div class="modegrid">
 <button class="mode active" id="mNew" onclick="setMode('new')"><b>🎛️ 單獨產生</b><small>依場景與時段建立新的每秒 Lp</small></button>
 <button class="mode" id="mLearn" onclick="setMode('learn')"><b>📂 讀取舊數據模擬</b><small>讀取舊 RND，學習波動後產生新資料</small></button>
@@ -15,7 +15,7 @@
 <section class="card">
 <div class="grid3"><div><label>儀器型號</label><select id="model"><option>NL-53</option><option>NL-52</option><option>NL-32</option></select></div><div><label>開始時間</label><input id="start" type="datetime-local" step="1"></div><div><label>結束時間</label><input id="end" type="datetime-local" step="1"></div></div>
 <div id="newPanel"><div class="grid3"><div><label>環境場景</label><select id="scene"><option value="road">一般道路</option><option value="arterial">主要幹道／大馬路</option><option value="rail">高鐵／鐵路旁</option><option value="residential">住宅區</option><option value="mixed">住宅區＋道路</option><option value="industrial">工業區</option><option value="construction">工地周邊</option><option value="commercial">商業區／市區</option><option value="quiet">郊區／安靜地區</option></select></div><div><label>整體強度</label><select id="strength"><option value="-3">偏低</option><option value="0" selected>一般</option><option value="3">偏高</option></select></div><div><label>偶發事件</label><select id="events"><option value="0.5">少</option><option value="1" selected>一般</option><option value="1.7">多</option></select></div></div></div>
-<div id="learnPanel" class="hidden"><label>舊數據 RND（可一次選多檔）</label><input id="files" type="file" multiple accept=".rnd,.RND,.txt,.TXT"><div class="grid2"><div><label>參考資料相似程度</label><select id="similarity"><option value="0.45">低</option><option value="0.7" selected>中</option><option value="0.9">高</option></select></div><div><label>新資料強度修正（dB）</label><input id="offset" type="number" value="0" min="-15" max="15" step="0.1"></div></div><div class="info" id="fileInfo">尚未讀取參考檔。</div><div id="learnStats" class="stats hidden"><div class="stat"><span>有效檔案</span><b id="lFiles">-</b></div><div class="stat"><span>有效 Lp</span><b id="lCount">-</b></div><div class="stat"><span>Min / Max</span><b id="lRange">-</b></div><div class="stat"><span>波動 SD</span><b id="lSd">-</b></div></div><div id="waveBox" class="hidden" style="margin-top:12px"><label>舊資料波形縮圖</label><canvas id="waveCanvas" width="900" height="150" style="width:100%;height:150px;border:1px solid #e3e8f1;border-radius:12px;background:#fafbfe"></canvas></div></div>
+<div id="learnPanel" class="hidden"><label>舊數據檔案（RND 可多選；NL-32 建議連 RNH 一起選）</label><input id="files" type="file" multiple accept=".rnd,.RND,.rnh,.RNH,.txt,.TXT"><div class="grid2"><div><label>參考資料相似程度</label><select id="similarity"><option value="0.45">低</option><option value="0.7" selected>中</option><option value="0.9">高</option></select></div><div><label>新資料強度修正（dB）</label><input id="offset" type="number" value="0" min="-15" max="15" step="0.1"></div></div><div class="info" id="fileInfo">尚未讀取參考檔。</div><div id="learnStats" class="stats hidden"><div class="stat"><span>有效檔案</span><b id="lFiles">-</b></div><div class="stat"><span>有效 Lp</span><b id="lCount">-</b></div><div class="stat"><span>Min / Max</span><b id="lRange">-</b></div><div class="stat"><span>波動 SD</span><b id="lSd">-</b></div></div><div id="waveBox" class="hidden" style="margin-top:12px"><label>舊資料波形縮圖</label><canvas id="waveCanvas" width="900" height="150" style="width:100%;height:150px;border:1px solid #e3e8f1;border-radius:12px;background:#fafbfe"></canvas></div></div>
 <div class="warn">產出的檔案會標示為模擬／測試資料，適合流程測試、軟體驗證與演練，不應冒充實際儀器量測紀錄。</div>
 <div class="row"><button class="btn primary" id="generateBtn" onclick="generate()">▶ 產生模擬資料</button><button class="btn secondary" onclick="clearAll()">清除</button></div><div class="progress hidden" id="prog"><i id="bar"></i></div>
 </section>
@@ -42,7 +42,15 @@ $('model').addEventListener('change',()=>{
   updateGenerateState();
 });
 $('files').addEventListener('change',async e=>{
- const fs=[...(e.target.files||[])]; if(!fs.length)return;
+ let picked=[...(e.target.files||[])]; if(!picked.length)return;
+ const metaFile=picked.find(f=>/\.rnh$/i.test(f.name));
+ const fs=picked.filter(f=>!/\.rnh$/i.test(f.name));
+ if(!fs.length){$('fileInfo').textContent='請至少選取一個 RND。';return}
+ let nl32BaseMs=null;
+ if($('model').value==='NL-32' && metaFile){
+   const mt=await metaFile.text(), mm=mt.match(/^Start Time,\s*(\d{4}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})/mi);
+   if(mm){let x=Date.parse(mm[1].replace(/\//g,'-'));if(Number.isFinite(x))nl32BaseMs=x}
+ }
  readingFiles=true;learned=null;updateGenerateState();$('learnStats').classList.add('hidden');$('waveBox').classList.add('hidden');
  // V2.3: 不再建立數十萬個 {time,value} 物件，也不做全資料排序。
  // RND 依使用者選取順序逐檔、逐行讀取；只保留 Float32 Lp + Uint8 小時，記憶體大幅降低。
@@ -61,12 +69,12 @@ $('files').addEventListener('change',async e=>{
      for(const p of parts){if(/^\s*\d{4}[\/-]\d{1,2}[\/-]\d{1,2}/.test(p)){let x=Date.parse(p.trim().replace(/\//g,'-'));if(Number.isFinite(x)){tm=x;break}}}
      if(Number.isFinite(v)&&v>15&&v<140){
        found++; total++; vv.push(v); sum+=v; sum2+=v*v; if(v<mn)mn=v;if(v>mx)mx=v;
-       let h=tm!==null?new Date(tm).getHours():Math.floor(((total-1)%86400)/3600); hh.push(h); hourSum[h]+=v;hourN[h]++;
+       let h=tm!==null?new Date(tm).getHours():($('model').value==='NL-32'&&nl32BaseMs!==null?new Date(nl32BaseMs+(total-1)*1000).getHours():Math.floor(((total-1)%86400)/3600)); hh.push(h); hourSum[h]+=v;hourN[h]++;
        if(tm!==null){if(firstTm===null||tm<firstTm)firstTm=tm;if(lastTm===null||tm>lastTm)lastTm=tm}
      }
    }
    if(found){
-     if($('model').value==='NL-52' && vv.length){
+     if(($('model').value==='NL-52'||$('model').value==='NL-32') && vv.length){
        // NL-52: ignore only contiguous calibration values at the beginning/end (~94 dB).
        // Normal environmental peaks in the middle are preserved.
        let cutA=0,cutB=vv.length;
@@ -265,10 +273,21 @@ function rnh52Text(){
  let total=`${String(days).padStart(2,'0')}d ${pad(hh)}:${pad(mm)}:${ss.toFixed(1).padStart(4,'0')}`;
  return `CSV\r\n[Setting]\r\n\r\n[Property]\r\nSystem Version,2.1\r\nNX-42EX Version,1.9\r\nNX-42WR Version,1.7\r\nNX-42RT Version,1.9\r\nNX-42FT Version,1.3\r\nSerial Number,843192\r\n\r\n[NL-42]\r\nStore Name,${mmdd()}\r\nType,NL-52\r\nIndex Number,1\r\nFrequency Weighting,A\r\nTime Weighting,F\r\nOutput Level Range Upper,130\r\nOutput Level Range Lower,30\r\nDelay Time,Off\r\nWindscreen Correction,Off\r\nDiffuse Sound Field Correction,Off\r\nLN Mode,Leq_1s\r\nDisplay Leq,On\r\nDisplay LE,On\r\nDisplay Lmax,On\r\nDisplay Lmin,On\r\nDisplay Ly,Off\r\nDisplay LN1,On\r\nDisplay LN2,On\r\nDisplay LN3,On\r\nDisplay LN4,On\r\nDisplay LN5,On\r\nDisplay Time Level,On\r\nPercentile 1,5\r\nPercentile 2,10\r\nPercentile 3,50\r\nPercentile 4,90\r\nPercentile 5,95.0\r\nLy Type,Off\r\nAC OUT,Main\r\nDC OUT,Main\r\nComparator,Off\r\nComparator Level,70\r\nComparator Channel,Main\r\nBattery Type,Alkaline\r\nCommunication Interface,Off\r\nBaud Rate,9600\r\nLanguage,Simplified Chinese\r\n\r\n[NX-42EX]\r\nLp Store Interval,1 s\r\nLeq Calculation Interval,Off\r\nTimer Auto Start Time,-\r\nTimer Auto Stop Time,-\r\nTimer Auto Interval,-\r\nSleep Mode,Off\r\n\r\n[Status]\r\nMeasurement Start Time,${start}\r\nMeasurement Stop Time,${stop}\r\nLp Data Number,${values.length}\r\nLeq Data Number,-\r\nMeasure Time,${total}\r\n`;
 }
+function rnh32Text(){
+ const start=dt(new Date(startMs)), stop=dt(new Date(endMs));
+ let sec=Math.max(0,Math.round((endMs-startMs)/1000));
+ let hh=Math.floor(sec/3600), mm=Math.floor((sec%3600)/60), ss=sec%60;
+ let files=Math.ceil(values.length/60000);
+ return `File name,AU1_${mmdd()}\r\nFile number,${String(files).padStart(3,' ')}\r\nData number, ${values.length}\r\nFrequency-weight,A   \r\nTime-weight,Fast\r\nFilter,-     \r\nCenter/High pass filter cutoff,-      \r\nLow pass filter cutoff,-      \r\nTime setting,Manual\r\nMeasurment time, ${String(hh).padStart(2,'0')}:${pad(mm)}:${pad(ss)}\r\nSampling,1sec    \r\nStart Time,${start}\r\nStop Time,${stop}\r\nInterval measurement,Off   \r\n[Sound rec.]\r\nSound rec.,Off\r\nEvent rec.,Off\r\nInterval rec.,Off\r\nSE file number,   0\r\nSI file number,   0\r\nStart Time,${start}\r\nStop Time,${stop}\r\n`;
+}
 function summaryText(model){return `【模擬／測試資料】\r\n儀器型號：${model}\r\n開始時間：${dt(new Date(startMs))}\r\n結束時間：${dt(new Date(endMs))}\r\n每秒筆數：${values.length}\r\n總時數：${(values.length/3600).toFixed(1)}\r\n整體 Leq：${overall.leq.toFixed(1)} dB\r\nLmax：${overall.max.toFixed(1)} dB\r\n用途：流程測試、軟體驗證與演練；不得作為實際量測紀錄。\r\n`}
 async function downloadInstrument(){
  if(!values||!values.length)return; if(typeof JSZip==='undefined')return alert('ZIP 元件尚未載入，請確認網路後重新整理。');
- const m=$('model').value,tag=mmdd(),zip=new JSZip(),root=zip.folder(`Auto_${tag}`);root.file(`Auto_${tag}.RNH`,m==='NL-52'?rnh52Text():rnhText(m));zip.file('模擬結果摘要.txt',summaryText(m));
+ const m=$('model').value,tag=mmdd(),zip=new JSZip();
+ const root=m==='NL-32'?zip.folder(`AU1_${tag}`):zip.folder(`Auto_${tag}`);
+ if(m==='NL-32')root.file(`AU1_${tag}.RNH`,rnh32Text());
+ else root.file(`Auto_${tag}.RNH`,m==='NL-52'?rnh52Text():rnhText(m));
+ zip.file('模擬結果摘要.txt',summaryText(m));
  if(m==='NL-53'){
    let folder=root.folder('Auto_Lp_01'),chunk=3600;
    for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['Address,Start Time,Lp(Main),Leq(Main),Lmax(Main),Lmin(Main),Lpeak(Main),LIeq(Main),Over(Main),Under(Main),Marker1,Marker2,Marker3,Marker4,'];let runMax=-Infinity,runMin=Infinity,sum=0;for(let i=c;i<to;i++){let v=values[i];runMax=Math.max(runMax,v);runMin=Math.min(runMin,v);sum+=10**(v/10);let leq=10*Math.log10(sum/(i-c+1)),peak=v+3.2;lines.push(`${String(i+1).padStart(11)},${dt(new Date(startMs+i*1000))}.600, ${v.toFixed(1)}, ${leq.toFixed(1)}, ${runMax.toFixed(1)}, ${runMin.toFixed(1)}, ${peak.toFixed(1)},  -.-,-,-,-,-,-,-,`)}folder.file(`NL_0001_SLM_Lp _${tag}_${pad(c/chunk+1,4)}.RND`,lines.join('\r\n')+'\r\n')}
@@ -283,9 +302,13 @@ async function downloadInstrument(){
      folder.file(`NL_001_SLM_Lp _${tag}_${pad(c/chunk+1,4)}.rnd`,lines.join('\r\n')+'\r\n');
    }
  }else{
-   let folder=root.folder('AUTO_LP'),chunk=60000;
-   for(let c=0;c<values.length;c+=chunk){let to=Math.min(values.length,c+chunk),lines=['SIMULATED_TEST_DATA,DO_NOT_USE_AS_MEASUREMENT'];for(let i=c;i<to;i++)lines.push(` ${values[i].toFixed(1)}, , , ,`);folder.file(`AU1_${pad(c/chunk,4)}.RND`,lines.join('\r\n'))}
-   root.file(`AU1_${tag}.RNH`,rnhText(m));
+   // NL-32 原機格式：每檔 60,000 筆，無標題列；RND 與 RNH 位於同一資料夾。
+   let chunk=60000;
+   for(let c=0;c<values.length;c+=chunk){
+     let to=Math.min(values.length,c+chunk),lines=[];
+     for(let i=c;i<to;i++)lines.push(` ${values[i].toFixed(1)}, , , ,`);
+     root.file(`AU1_${pad(c/chunk,4)}.RND`,lines.join('\r\n')+'\r\n');
+   }
  }
  $('exportInfo').textContent='正在建立 ZIP…';let blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:3}},m=>{$('exportInfo').textContent=`正在建立 ZIP… ${m.percent.toFixed(0)}%`});blobDownload(blob,`${m.replace('-','')}_SIM_${tag}.zip`);$('exportInfo').textContent='完整資料包 ZIP 已建立。';
 }
